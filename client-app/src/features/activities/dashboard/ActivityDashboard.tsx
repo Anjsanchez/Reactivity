@@ -1,24 +1,26 @@
-import React from "react";
-import { Grid, List } from "semantic-ui-react";
-import { Activity } from "../../../app/Models/activity";
+import { Grid } from "semantic-ui-react";
 import ActivityList from "./ActivityList";
 import ActivityDetails from "../Details/ActivityDetails";
-import ActivityForm from "./../form/ActivityForm";
+import { useStore } from "../../../app/stores/store";
+import { observer } from "mobx-react-lite";
+import ActivityForm from "../form/ActivityForm";
 
-interface Props {
-  activities: Activity[];
-}
-
-export default function ActivityDashboard({ activities }: Props) {
+function ActivityDashboard() {
+  const { activityStore } = useStore();
+  const { selectedActivity, editMode } = activityStore;
   return (
     <Grid>
       <Grid.Column width="10">
-        <ActivityList activities={activities} />
+        <ActivityList />
       </Grid.Column>
+
       <Grid.Column width="6">
-        {activities[0] && <ActivityDetails activity={activities[0]} />}
-        <ActivityForm />
+        {selectedActivity && <ActivityDetails />}
+
+        {editMode && <ActivityForm />}
       </Grid.Column>
     </Grid>
   );
 }
+
+export default observer(ActivityDashboard);

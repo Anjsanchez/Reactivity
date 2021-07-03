@@ -1,15 +1,40 @@
+import { SyntheticEvent } from "react";
+import { useState } from "react";
 import { Button, Item, Label, Segment } from "semantic-ui-react";
-import { Activity } from "./../../../app/Models/activity";
+import { useStore } from "../../../app/stores/store";
+import { observer } from "mobx-react-lite";
 
-interface Props {
-  activities: Activity[];
-}
+interface Props {}
+function ActivityList({}: Props) {
+  const { activityStore } = useStore();
+  const {
+    activities,
+    setSubmitting,
+    selectActivity,
+    closeForm,
+    deleteActivity,
+    activitiesBydate,
+  } = activityStore;
 
-export default function ActivityList({ activities }: Props) {
+  const [target, setTarget] = useState("");
+
+  function handleActivityDelete(
+    e: SyntheticEvent<HTMLButtonElement>,
+    id: string
+  ) {
+    setTarget(e.currentTarget.name);
+    deleteActivity(id);
+  }
+
+  function handleViewAction(id: string) {
+    closeForm();
+    selectActivity(id);
+  }
+
   return (
     <Segment>
       <Item.Group divided>
-        {activities.map((n) => (
+        {activitiesBydate.map((n) => (
           <Item key={n.id}>
             <Item.Content>
               <Item.Header as="a">{n.title}</Item.Header>
@@ -19,7 +44,22 @@ export default function ActivityList({ activities }: Props) {
                 <div>{n.city}</div>
               </Item.Description>
               <Item.Extra>
-                <Button floated="right" content="View" color="blue" />
+                <Button
+                  content="View"
+                  onClick={() => handleViewAction(n.id)}
+                  floated="right"
+                  color="blue"
+                  id={n.id}
+                />
+                <Button
+                  content="Delete"
+                  name={n.id}
+                  onClick={(e) => handleActivityDelete(e, n.id)}
+                  floated="right"
+                  color="red"
+                  loading={setSubmitting(true) && target === n.id}
+                  id={n.id}
+                />
                 <Label basic content={n.category} />
               </Item.Extra>
             </Item.Content>
@@ -29,3 +69,4 @@ export default function ActivityList({ activities }: Props) {
     </Segment>
   );
 }
+export default observer(ActivityList);
